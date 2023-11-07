@@ -1,0 +1,11 @@
+.hh__variables {
+  width: 594px;
+  height: 100%;
+  padding: 5px;
+  overflow: auto;
+}
+
+.hh__subtree {
+  padding-left: 25px;
+  grid-column: 1 / 3;
+}

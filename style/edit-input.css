@@ -1,0 +1,70 @@
+.hh__can-edit {
+  cursor: pointer;
+  position: relative;
+  isolation: isolate;
+}
+
+.hh__can-edit:hover::before {
+  content: '';
+  position: absolute;
+  inset: 0 21px 0 23px;
+  border-radius: 8px;
+  z-index: -1;
+  background: rgba(255, 255, 255, .5);
+  border: solid #FFF 1px;
+  opacity: .3;
+}
+
+.hh__can-edit:has(.hh__ignore-btn:hover):hover::before {
+  background: rgba(255, 200, 200, .5);
+  border: solid #F00 1px;
+  opacity: .3;
+  border-radius: 0;
+  inset: 0 0 0 -100vw;
+}
+
+.hh__edit-number {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hh__edit-number > input[type=number] {
+  appearance: none;
+  background: #FFF;
+  border-radius: 4px;
+  width: 8ch;
+  padding: 2px 4px;
+  margin-inline: 5px;
+  text-align: center;
+  height: 30px;
+}
+
+.hh__edit-number > input[type=number]::-webkit-outer-spin-button,
+.hh__edit-number > input[type=number]::-webkit-inner-spin-button {
+  appearance: none;
+}
+
+.hh__edit-number button {
+  height: 24px;
+  background: #999;
+  color: #FFF;
+  border: 0;
+  padding-inline: .75ch;
+  cursor: pointer;
+}
+.hh__edit-number button:hover {
+  background: #666;
+}
+
+.hh__edit-number button:first-child,
+.hh__edit-number input + button {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.hh__edit-number button:last-child,
+.hh__edit-number button:has(+ input) {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}

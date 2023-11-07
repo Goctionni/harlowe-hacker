@@ -1,0 +1,46 @@
+.hh__modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+  background-color: rgba(0, 0, 0, .25);
+}
+
+.hh__modal {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 400px;
+  max-width: calc(100lvh - 20px);
+  background: #444;
+  border: solid #ccc 5px;
+  outline: solid #000 1px;
+  padding: 5px;
+  color: #FFF;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.hh__modal-actions {
+  display: flex;
+  justify-content: end;
+  gap: 5px;
+}
+
+.hh__modal-title {
+  background: #bbb;
+  color: #000;
+  padding: 5px 10px;
+}
+
+.hh__monospace {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+}
+
+.hh__modal-actions > button {
+  background: #000;
+  color: #FFF;
+  border: 0;
+}

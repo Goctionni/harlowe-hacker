@@ -1,0 +1,45 @@
+.hh__attr-val {
+  font-size: 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.hh__attr-val.hh__val-null {
+  font-family: 'Courier New', Courier, monospace;
+  color: #c164c1;
+}
+
+.hh__attr-val.hh__val-undefined {
+  font-family: 'Courier New', Courier, monospace;
+  opacity: .5;
+}
+
+.hh__attr-type-object .hh__attr-val.hh__val-empty-object,
+.hh__attr-type-map .hh__attr-val.hh__val-empty-map,
+.hh__attr-type-array .hh__attr-val.hh__val-empty-array {
+  opacity: .5;
+  font-style: italic;
+  color: #F99;
+}
+
+.hh__attr-type-object .hh__attr-val,
+.hh__attr-type-array .hh__attr-val,
+.hh__attr-type-map .hh__attr-val {
+  opacity: .5;
+  font-size: 70%;
+}
+
+.hh__val-number {
+  color: #c164c1;
+}
+
+.hh__val-string {
+  font-family: 'Courier New', Courier, monospace;
+  color: #69bea2;
+}
+.hh__val-string::before, .hh__val-string::after {
+  content: '"';
+  color: hsl(160, 40%, 40%);
+}

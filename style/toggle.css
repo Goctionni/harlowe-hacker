@@ -1,0 +1,44 @@
+.hh__can-toggle {
+  cursor: pointer;
+}
+
+.hh__toggle-btn {
+  background: transparent;
+  border: 0;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  color: #FFF;
+  cursor: pointer;
+  border-radius: 25%;
+  transition: rotate .2s ease-in-out, background .1s ease-in-out;
+}
+
+.hh__obj-expanded > .hh__toggle-btn {
+  rotate: 90deg;
+}
+
+.hh__can-toggle:hover > .hh__toggle-btn {
+  background: #999;
+}
+
+.hh__toggle-btn::before,
+.hh__toggle-btn::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 40%;
+  height: 10%;
+  top: 45%;
+  right: 33%;
+  background: currentColor;
+  transform-origin: right;
+  border-radius: 99vmax;
+}
+
+.hh__toggle-btn::before {
+  rotate: 45deg;
+}
+.hh__toggle-btn::after {
+  rotate: -45deg;
+}

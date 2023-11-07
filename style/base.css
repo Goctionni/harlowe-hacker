@@ -1,0 +1,8 @@
+[class*=hh__],
+[class*=hh__] *,
+[class*=hh__]::before,
+[class*=hh__]::after,
+[class*=hh__] ::before,
+[class*=hh__] ::after {
+  box-sizing: border-box;
+}

@@ -1,0 +1,63 @@
+.hh__attr {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: .2em;
+  margin: .1em 0;
+  align-items: center;
+}
+
+.hh__attr > :first-child {
+  min-width: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.hh__attr-key {
+  position: relative;
+  font-family: 'Courier New', Courier, monospace;
+  padding-left: calc(20px + .2em);
+  padding-right: .2em;
+  color: hsl(210, 30%, 60%);
+  font-weight: bold;
+}
+
+:not(.hh__attr-type-function) > .hh__attr-key::after {
+  content: ':';
+  color: #eee;
+  padding-inline: .2em;
+}
+
+.hh__ignore-btn {
+  opacity: 0;
+  position: relative;
+  width: 19px;
+  height: 19px;
+  background: transparent;
+  border-radius: 50%;
+  border: 0;
+  cursor: pointer;
+}
+
+.hh__attr:hover .hh__ignore-btn {
+  opacity: 1;
+}
+
+.hh__ignore-btn::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: solid #F66 2px;
+  border-radius: 50%;
+}
+
+.hh__ignore-btn::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 50%;
+  margin-top: -1px;
+  height: 2px;
+  background: #F66;
+  rotate: 45deg;
+}
