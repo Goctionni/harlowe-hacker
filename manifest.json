@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Harlowe Hacker",
+  "description": "Extension thqat helps manipulate Harlowe state",
+  "version": "1.0",
+  "content_scripts": [
+    {
+      "js": [
+        "scripts/util.js",
+        "scripts/ignore-paths.js",
+        "scripts/events.js",
+        "scripts/state-ui.js",
+        "scripts/diff-tracker.js"
+      ],
+      "css": [
+        "style/base.css",
+        "style/panel.css",
+        "style/harlowe-hacker.css",
+        "style/object.css",
+        "style/toggle.css",
+        "style/val-type.css",
+        "style/type-prefix.css",
+        "style/modal.css",
+        "style/edit-input.css"
+      ],
+      "matches": ["file://*"],
+      "world": "MAIN"
+    }
+  ]
+}
