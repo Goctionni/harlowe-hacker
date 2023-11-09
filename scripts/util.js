@@ -116,7 +116,7 @@
    * @param {Record<string, unknown> | Map<string,unknown>} val
    * @returns {string[]}
    */
-  function keys(val) {
+  function getKeys(val) {
     if (!val || typeof val !== 'object') return [];
     if (Array.isArray(val)) return [...val.keys()].filter((key) => isAllowedValue(val[key])).sort();
     if (val instanceof Map) return [...val.keys()].filter((key) => isAllowedValue(val.get(key))).sort();
@@ -124,6 +124,29 @@
       .filter((key) => isAllowedValue(val[key]))
       .sort();
   }
+
+  function getSubItem(item, key) {
+    if (Array.isArray(item)) return item[key];
+    if (item instanceof Map) return item.get(key);
+    return item[key];
+  }
+
+  function setSubItem(item, key, value) {
+    if (Array.isArray(item)) {
+      item[key] = value;
+    } else if (item instanceof Map) {
+      item.set(key, value);
+    } else {
+      item[key] = value;
+    }
+  }
+
+  function getSubPathFragment(item, key) {
+    if (Array.isArray(item)) return `[${key}]`;
+    if (item instanceof Map) return `.get('${key}')`;
+    return getObjectKey(key);
+  }
+
   /**
    * @param {string[]} arr1
    * @param {string[]} arr2
@@ -144,7 +167,10 @@
     getObjectKey,
     isPrimitive,
     isAllowedValue,
-    keys,
+    getSubItem,
+    setSubItem,
+    getSubPathFragment,
+    getKeys,
     stringArrayMatch,
   };
 })();

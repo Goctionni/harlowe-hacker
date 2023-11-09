@@ -1,7 +1,8 @@
 (() => {
   if (!('Harlowe' in window)) return;
 
-  const { _, __, getType, isSimpleObjectKey } = window.HarloweHacker.util;
+  const { _, __, getType, getKeys, isSimpleObjectKey, getSubItem, setSubItem, getSubPathFragment } =
+    window.HarloweHacker.util;
   const { getIgnoredPaths, addIgnorePath } = window.HarloweHacker;
 
   function canExpand(val) {
@@ -24,7 +25,7 @@
       case 'undefined':
         return _(`span.attr-val.val-${type}`, String(value));
       case 'object':
-        return _(`span.attr-val.val-${type}`, `(properties: ${Object.keys(value).length})`);
+        return _(`span.attr-val.val-${type}`, `(properties: ${getKeys(value).length})`);
       case 'array':
         return _(`span.attr-val.val-${type}`, `(items: ${value.length})`);
       case 'map':
@@ -114,6 +115,7 @@
         },
       }),
     );
+
     if (canExpand(value)) {
       el.classList.add('hh__can-toggle', 'hh__obj-collapsed');
       el.addEventListener('click', () => {
@@ -123,7 +125,8 @@
         if (el.classList.contains('hh__obj-expanded')) {
           /** @type {HTMLElement} */
           const parent = el.parentElement;
-          const childTree = _('div.subtree', type === 'map' ? mapToTree(value) : objectToTree(value));
+          // TODO: missing sub path arg
+          const childTree = _('div.subtree', itemToTree(value));
           parent.insertBefore(childTree, el.nextSibling);
         } else {
           el.nextSibling.remove();
@@ -180,58 +183,26 @@
   }
 
   /**
-   * @param {Map<string, unknown>} map
+   * @param {Record<string,unknown>|Map<string, unknown>|unknown[]} item
    * @returns {HTMLElement}
    */
-  function mapToTree(map, path) {
-    const keys = [...map.keys()];
+  function itemToTree(item, path) {
+    const keys = getKeys(item);
     return _(
       'div',
       { class: 'obj' },
       ...keys
         .map((key) => {
-          const itemPath = path + `.get('${key}')`;
+          const itemPath = path + getSubPathFragment(item, key);
           if (getIgnoredPaths().includes(itemPath)) return [];
-          const setter = (val) => {
-            map.set(key, val);
-          };
-          return valueLine(key, map.get(key), setter, itemPath);
-        })
-        .flat(),
-    );
-  }
-
-  /**
-   * @param {Record<string, unknown>} obj
-   * @param {string} path
-   * @returns {HTMLElement}
-   */
-  function objectToTree(obj, path) {
-    const keys = Object.keys(obj);
-    return _(
-      'div',
-      { class: 'obj' },
-      ...keys
-        .map((key) => {
-          const setter = (val) => {
-            obj[key] = val;
-          };
-          let itemPath = path;
-          if (path) {
-            if (Array.isArray(obj)) itemPath += `[${key}]`;
-            else if (isSimpleObjectKey(key)) itemPath += `.${key}`;
-            else itemPath += `['${key}']`;
-          } else {
-            itemPath = key;
-          }
-          if (getIgnoredPaths().includes(itemPath)) return [];
-          return valueLine(key, obj[key], setter, itemPath);
+          const setter = (val) => setSubItem(item, key, val);
+          return valueLine(key, getSubItem(item, key), setter, itemPath);
         })
         .flat(),
     );
   }
 
   // Init
-  __('div', { class: 'root' }, _('div.variables', objectToTree(Harlowe.API_ACCESS.STATE.variables, '')));
+  __('div', { class: 'root' }, _('div.variables', itemToTree(Harlowe.API_ACCESS.STATE.variables, '')));
   // trackDiffs();
 })();
