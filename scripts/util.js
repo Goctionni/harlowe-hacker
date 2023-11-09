@@ -108,6 +108,8 @@
    */
   function isAllowedValue(val) {
     if (typeof val === 'function') return false;
+    if (val instanceof Map) return true;
+    if (Array.isArray(val)) return true;
     if (val && typeof val === 'object' && 'constructor' in val && val.constructor !== normalConstructor) return false;
     return true;
   }
@@ -117,11 +119,13 @@
    * @returns {string[]}
    */
   function getKeys(val) {
-    if (!val || typeof val !== 'object') return [];
-    if (Array.isArray(val)) return [...val.keys()].filter((key) => isAllowedValue(val[key])).sort();
-    if (val instanceof Map) return [...val.keys()].filter((key) => isAllowedValue(val.get(key))).sort();
-    return Object.keys(val)
+    const type = getType(val, false);
+    if (type !== 'object' && type !== 'map' && type !== 'array') return [];
+    const keys = type === 'object' ? Object.keys(val) : [...val.keys()];
+
+    return keys
       .filter((key) => isAllowedValue(val[key]))
+      .filter((key) => !(typeof key === 'string' && key.startsWith('buttplug_')))
       .sort();
   }
 

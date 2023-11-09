@@ -193,7 +193,7 @@
       { class: 'obj' },
       ...keys
         .map((key) => {
-          const itemPath = path + getSubPathFragment(item, key);
+          const itemPath = !path ? key : `${path}${getSubPathFragment(item, key)}`;
           if (getIgnoredPaths().includes(itemPath)) return [];
           const setter = (val) => setSubItem(item, key, val);
           return valueLine(key, getSubItem(item, key), setter, itemPath);

@@ -27,64 +27,58 @@
   /**
    * @type {{
    *  getIgnoredPaths: () => string[],
-   *  addIgnorePath: (path: string) => void,
    * }}
    */
-  const { getIgnoredPaths, addIgnorePath } = window.HarloweHacker;
+  const { getIgnoredPaths } = window.HarloweHacker;
 
   /** @type {StateEntry} */
-  let stateMap = [];
+  HarloweHacker.stateMap = [];
+
+  function getFullPath(parentPath, item, key) {
+    return !parentPath ? key : `${parentPath}${getSubPathFragment(item, key)}`;
+  }
 
   /**
    * @param {Record<string, unknown>|Map<string, unknown>|unknown[]} data
    * @returns {StateEntry}
    */
-  function getStateMap(data, doRecursion = true, parentPath = '', ignore = []) {
-    if (!data || typeof data !== 'object') throw 'getStateMap should only be called with array, map or object';
+  function getStateMap(data, path = '', ignore = []) {
     if (ignore.includes(data)) return [];
-    if (getIgnoredPaths().includes(parentPath)) return [];
-
-    function mapItem(pathPrefix, item) {
-      if (getIgnoredPaths().includes(pathPrefix)) return [];
-      const type = getType(item, false, true);
-      switch (type) {
-        case 'array':
-        case 'object':
-        case 'map':
-          if (doRecursion) {
-            return getStateMap(item, doRecursion, pathPrefix, [...ignore, data]);
-          } else {
-            const itemKeys = getKeys(item);
-            return {
-              path: pathPrefix,
-              type,
-              value: item,
-              size: itemKeys.length,
-              keys: itemKeys,
-            };
-          }
-        default:
-          return {
-            path: pathPrefix,
-            type,
-            value: item,
-          };
-      }
-    }
+    if (getIgnoredPaths().includes(path)) return [];
 
     const type = getType(data, true);
-    const resultKeys = getKeys(data);
-    return {
-      path: parentPath,
-      type,
-      value: data,
-      size: resultKeys.length,
-      keys: resultKeys,
-      items: resultKeys.map((key) => {
-        const subPath = !parentPath ? key : `${parentPath}${getSubPathFragment(data, key)}`;
-        return mapItem(subPath, getSubItem(data, key));
-      }),
-    };
+    switch (type) {
+      case 'boolean':
+      case 'null':
+      case 'undefined':
+      case 'string':
+      case 'number':
+      case 'other':
+        return {
+          path,
+          type,
+          value: data,
+        };
+      case 'array':
+      case 'object':
+      case 'map': {
+        const resultKeys = getKeys(data).filter((key) => {
+          const fullPath = getFullPath(path, data, key);
+          return !getIgnoredPaths().includes(fullPath);
+        });
+
+        return {
+          path,
+          type,
+          value: data,
+          size: resultKeys.length,
+          keys: resultKeys,
+          items: resultKeys.map((key) => {
+            return getStateMap(getSubItem(data, key), getFullPath(path, data, key), [...ignore, data]);
+          }),
+        };
+      }
+    }
   }
 
   /**
@@ -128,13 +122,13 @@
         const removedValues = [];
         const addedValues = [];
         for (const value of allValues) {
-          const oldCount = oldValues.filter((val) => val === oldValue).length;
-          const newCount = newValues.filter((val) => val === oldValue).length;
+          const oldCount = oldValues.filter((val) => val === value).length;
+          const newCount = newValues.filter((val) => val === value).length;
           if (oldCount === newCount) continue;
           if (oldCount > newCount) {
             removedValues.push(...new Array(oldCount - newCount).fill(value));
           } else if (newCount > oldCount) {
-            addedValues.push(...new Array(oldCount - newCount).fill(value));
+            addedValues.push(...new Array(newCount - oldCount).fill(value));
           }
         }
         // Figure out actual result
@@ -161,7 +155,7 @@
         if (addedValues.length) {
           result.push({
             path: item1.path,
-            msg: `${addedValues.length} values added to array`,
+            msg: `${addedValues.length} ${addedValues.length === 1 ? 'value' : 'values'} added to array`,
             array: item1.value,
             addedValues,
           });
@@ -177,6 +171,7 @@
           // Recursion
           result.push(...compareItem(subItem1, subItem2));
         }
+        return result;
       }
 
       case 'object':
@@ -201,7 +196,7 @@
 
         // Properties added
         for (const keyAdded of keysAdded) {
-          const expectedPath = !item1.path ? keyAdded : `${item1.path}${getSubPathFragment(item1.value, keyAdded)}`;
+          const expectedPath = getFullPath(item1.path, item1.value, keyAdded);
           const subItem1 = item1.items.find((si1) => si1.path === expectedPath);
           if (!subItem1) {
             // This shouldn't happen, if it doesn't ill remove this.
@@ -221,9 +216,9 @@
 
         // Properties shared
         for (const keyShared of keysShared) {
-          const expectedPath = !item1.path ? keyShared : `${item1.path}${getSubPathFragment(item1.value, keyShared)}`;
+          const expectedPath = getFullPath(item1.path, item1.value, keyShared);
           const subItem1 = item1.items.find((si1) => si1.path === expectedPath);
-          const subItem2 = item1.items.find((si2) => si2.path === expectedPath);
+          const subItem2 = item2.items.find((si2) => si2.path === expectedPath);
           if (!subItem1 || !subItem2) {
             // This shouldn't happen, if it doesn't ill remove this.
             console.warn('Expected to find subitem 1 and 2 with shared key, but did not find', {
@@ -233,7 +228,8 @@
               item2items: item2.items,
             });
           } else {
-            console.log(compareItem(subItem1, subItem2), subItem1, subItem2);
+            // if (subItem1.path.startsWith('character.'))
+            //   console.log(compareItem(subItem1, subItem2), subItem1, subItem2);
             result.push(...compareItem(subItem1, subItem2));
           }
         }
@@ -242,15 +238,24 @@
     }
   }
 
-  const before = Date.now();
-  stateMap = getStateMap(Harlowe.API_ACCESS.STATE.variables);
-  console.log('getStateMap', stateMap);
-  console.log(Date.now() - before);
-  console.log('Shallow map', getStateMap(Harlowe.API_ACCESS.STATE.variables, false));
+  HarloweHacker.stateMap = getStateMap(Harlowe.API_ACCESS.STATE.variables);
   window.HarloweHacker.checkDiff = () => {
     const newStateMap = getStateMap(Harlowe.API_ACCESS.STATE.variables);
-    const diffs = compareItem(newStateMap, stateMap);
-    stateMap = newStateMap;
+    const diffs = compareItem(newStateMap, HarloweHacker.stateMap);
+    HarloweHacker.stateMap = newStateMap;
     return diffs;
   };
+
+  // Track diffs
+  function tickCheckDiffs() {
+    const before = Date.now();
+    const diffs = window.HarloweHacker.checkDiff();
+    const elapsed = Date.now() - before;
+    if (diffs.length) {
+      console.log('------------------');
+      diffs.forEach((diff) => console.log(diff));
+    }
+    setTimeout(tickCheckDiffs, Math.min(333, elapsed * 10));
+  }
+  tickCheckDiffs();
 })();
